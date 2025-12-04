@@ -157,25 +157,29 @@ def build_dimensions_layer():
         CREATE OR REPLACE TABLE dim_date AS
         WITH bounds AS (
             SELECT
-                MIN(transaction_date)::DATE AS min_date,
-                MAX(transaction_date)::DATE AS max_date
+                MIN(CAST(transaction_date AS DATE)) AS min_date,
+                MAX(CAST(transaction_date AS DATE)) AS max_date
             FROM stg_transactions
         ),
         date_spine AS (
-            SELECT
-                gs AS full_date
+            SELECT 
+                DATE(gs) AS full_date
             FROM bounds,
-            generate_series(min_date, max_date, INTERVAL 1 DAY) AS t(gs)
+            generate_series(
+                (SELECT min_date FROM bounds)::TIMESTAMP,
+                (SELECT max_date FROM bounds)::TIMESTAMP,
+                INTERVAL 1 DAY
+            ) AS t(gs)
         )
         SELECT
-            CAST(strftime(full_date, '%Y%m%d') AS INTEGER) AS date_key,
+            CAST(STRFTIME(full_date, '%Y%m%d') AS INTEGER) AS date_key,
             full_date,
-            EXTRACT(DAY    FROM full_date)::INTEGER    AS day,
-            EXTRACT(MONTH  FROM full_date)::INTEGER    AS month,
-            EXTRACT(QUARTER FROM full_date)::INTEGER   AS quarter,
-            EXTRACT(YEAR   FROM full_date)::INTEGER    AS year,
-            strftime(full_date, '%b')                  AS month_name,
-            (EXTRACT(ISODOW FROM full_date) IN (6,7))  AS is_weekend
+            EXTRACT(DAY FROM full_date) AS day,
+            EXTRACT(MONTH FROM full_date) AS month,
+            EXTRACT(QUARTER FROM full_date) AS quarter,
+            EXTRACT(YEAR FROM full_date) AS year,
+            STRFTIME(full_date, '%b') AS month_name,
+            (EXTRACT(ISODOW FROM full_date) IN (6, 7)) AS is_weekend
         FROM date_spine
         ORDER BY full_date;
     """)

@@ -1,10 +1,8 @@
-version: "3.9"
-
 services:
 
   airflow-postgres:
     image: postgres:13
-    container_name: airflow_postgres
+    container_name: innova_postgres
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -16,34 +14,49 @@ services:
 
   airflow-webserver:
     image: apache/airflow:2.8.2
-    container_name: airflow_webserver
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: innova_airflow_webserver
     depends_on:
       - airflow-postgres
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      AIRFLOW__WEBSERVER__RBAC: "true"
+      AIRFLOW__WEBSERVER__SECRET_KEY: "NET_secret_key"
+      PYTHONPATH: /opt/airflow:/opt/airflow/project
     command: webserver
     ports:
-      - "8081:8080"
+      - "8085:8080"
     volumes:
+      - ./:/opt/airflow/project
       - ./airflow/dags:/opt/airflow/dags
       - ./etl:/opt/airflow/etl
       - ./data:/opt/airflow/data
 
   airflow-scheduler:
     image: apache/airflow:2.8.2
-    container_name: airflow_scheduler
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: innova_airflow_scheduler
     depends_on:
       - airflow-postgres
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: "NET_secret_key"
+      PYTHONPATH: /opt/airflow:/opt/airflow/project
     command: scheduler
     volumes:
+      - ./:/opt/airflow/project
       - ./airflow/dags:/opt/airflow/dags
       - ./etl:/opt/airflow/etl
       - ./data:/opt/airflow/data
 
 volumes:
   postgres_data:
+
+
 

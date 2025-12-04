@@ -6,7 +6,11 @@ WITH dates AS (
 ),
 date_spine AS (
     SELECT
-        GENERATE_SERIES(min_date, max_date, INTERVAL '1 day')::date AS full_date
+        GENERATE_SERIES (
+            (SELECT min_date FROM raw_dates)::TIMESTAMP,
+            (SELECT max_date FROM raw_dates)::TIMESTAMP,
+            INTERVAL 1 DAY
+        ) AS full_date
     FROM dates
 )
 SELECT

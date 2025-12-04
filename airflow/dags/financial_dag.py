@@ -10,7 +10,7 @@ from etl.quality import validate_row_counts, validate_nulls
 
 
 DEFAULT_ARGS = {
-    "owner": "data_engineering",
+    "owner": "Natalia Egea Terraza",
     "depends_on_past": False,
     "email_on_failure": True,
     "retries": 2,
