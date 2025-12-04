@@ -162,3 +162,9 @@ El diseño final del modelo:
 ✔ Reduce duplicación y mejora rendimiento en BI
 ✔ Soporta escalabilidad a nuevos países y nuevos planes
 ✔ Está estructurado para integrarse con dbt, Airflow, DuckDB/Postgres o Athena
+
+6. Arquitectura 
+
+La lógica ETL implementada se basa en una arquitectura en 3 capas (raw, staging, core), donde cada dataset es limpiado, tipificado, enriquecido y desnormalizado para alimentar un modelo dimensional orientado a métricas SaaS. En staging se aplican validaciones de integridad, normalización de atributos (país, canales, fechas) y estandarización de tipos. En core se construyen las dimensiones y hechos aplicando reglas de negocio: revenue por transacción, gastos por categoría, MRR como snapshot mensual y suscripciones derivadas por plan. Esta estructura garantiza consistencia, escalabilidad y una capa analítica confiable para el equipo financiero.
+
+RAW → STAGING → CORE → MARTS (dimensiones y hechos)
