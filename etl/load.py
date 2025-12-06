@@ -163,7 +163,7 @@ def build_dimensions_layer():
         ),
         date_spine AS (
             SELECT 
-                DATE(gs) AS full_date
+                CAST(gs AS DATE) AS full_date
             FROM bounds,
             generate_series(
                 (SELECT min_date FROM bounds)::TIMESTAMP,

@@ -1,6 +1,6 @@
 SELECT 
     co.country_name,
-    SUM(r.amount) AS total_revenue_2024
+    SUM(r.amount_usd) AS total_revenue_2024
 FROM fact_revenue r
 JOIN dim_country co ON r.country_key = co.country_key
 JOIN dim_date d ON r.date_key = d.date_key

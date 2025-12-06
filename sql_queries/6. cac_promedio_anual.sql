@@ -11,7 +11,7 @@ new_customers AS (
     SELECT COUNT(*) AS customer_count
     FROM dim_customer c
     JOIN dim_date d 
-        ON c.created_at = d.full_date
+        ON c.registration_date = d.full_date
     WHERE d.year = 2024
 )
 SELECT 

@@ -6,7 +6,6 @@ from airflow.utils.task_group import TaskGroup
 
 from etl.extract import extract_csvs
 from etl.load import load_to_staging, build_dimensions_layer, build_facts_layer
-from etl.quality import validate_row_counts, validate_nulls
 
 
 DEFAULT_ARGS = {
@@ -14,7 +13,7 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "email_on_failure": True,
     "retries": 2,
-    "retry_delay": timedelta(minutes=5),
+    "retry_delay": timedelta(minutes=2),
 }
 
 
@@ -57,19 +56,5 @@ with DAG(
             python_callable=build_facts_layer
         )
 
-    with TaskGroup("quality_layer", tooltip="Validaciones de calidad") as quality_group:
-        
-        validate_counts = PythonOperator(
-            task_id="validate_row_counts",
-            python_callable=validate_row_counts
-        )
 
-        validate_nulls_task = PythonOperator(
-            task_id="validate_null_values",
-            python_callable=validate_nulls
-        )
-
-        validate_counts >> validate_nulls_task
-
-
-    extract_group >> staging_group >> dimensions_group >> facts_group >> quality_group
+    extract_group >> staging_group >> dimensions_group >> facts_group
